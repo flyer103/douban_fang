@@ -92,7 +92,7 @@ class FangCrawler:
                 "url_owner": url_owner,
                 "time_update": int(time.time()*1000), # ms
             }
-            log_main.info("{0}: {1}, {2}".format(id_fang, title, time_last_reponse))
+            log_main.info("{0}, {1}".format(title, time_last_reponse))
                         
             data.append(item)
 
