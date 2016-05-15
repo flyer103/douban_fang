@@ -21,7 +21,6 @@ class FangCrawler:
         self.configs = self._load_conf()
 
         self.headers = self.configs["http"]["headers"]
-        self.url_start = "{}0".format(self.URL_TPL)
 
         mgo_config = self.configs["mongo"]
         if mgo_config.get("rs"):
