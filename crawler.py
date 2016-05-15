@@ -6,7 +6,7 @@ import json
 
 import requests
 from lxml import etree
-from pymongo import MongoClient, ReadPreference
+from pymongo import MongoClient
 
 from mylogger import Logger
 
