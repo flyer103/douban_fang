@@ -3,7 +3,6 @@
 
 import time
 import json
-import logging
 
 import requests
 from lxml import etree
