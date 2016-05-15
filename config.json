@@ -1,0 +1,26 @@
+{
+    "mongo_rs": {
+	"url": "mongodb://localhost:27018,localhost:27019,localhost:27020",
+	"rs_name": "rs",
+	"read_preference": "secondaryPreferred",
+	"db": "douban",
+	"collection": "fang"
+    },
+    "max_pages": 100,
+    "timeout": {
+	"crawl": 3,
+	"wait_interval": 3
+    },
+    "http": {
+	"headers": {
+	    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:48.0) Gecko/20100101 Firefox/48.0",
+            "Accept": "text/javascript, application/javascript, */*; q=0.01",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Host": "www.douban.com",
+            "Referer": "http://www.baidu.com",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1"
+	}
+    }
+}
