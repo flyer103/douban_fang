@@ -1,12 +1,17 @@
 {
-    "mongo_rs": {
-	"url": "mongodb://localhost:27018,localhost:27019,localhost:27020",
-	"rs_name": "rs",
-	"read_preference": "secondaryPreferred",
+    "mongo": {
+	"rs": {
+	    "url": "mongodb://localhost:27018,localhost:27019,localhost:27020",
+	    "name": "rs",
+	    "read_preference": "secondaryPreferred"
+	},
+	"single": {
+	    "url": "mongodb://localhost:27017"
+	},
 	"db": "douban",
 	"collection": "fang"
     },
-    "max_pages": 100,
+    "max_pages": 5,
     "timeout": {
 	"crawl": 3,
 	"wait_interval": 3

@@ -1,20 +1,17 @@
-"""先简单些，爬下豆瓣「上海租房」的信息.
+"""
 """
 
 import time
 import json
 import logging
-from pprint import pprint
 
 import requests
 from lxml import etree
 from pymongo import MongoClient, ReadPreference
 
+from mylogger import Logger
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="[%(asctime)s][%(levelname)s][%(filename)s][%(lineno)s] %(message)s",
-)
+log_main = Logger.get_logger(service=__name__)
 
 
 class FangCrawler:
@@ -27,12 +24,20 @@ class FangCrawler:
         self.headers = self.configs["http"]["headers"]
         self.url_start = "{}0".format(self.URL_TPL)
 
-        mgo_config = self.configs["mongo_rs"]
-        self.mgo = MongoClient(
-            mgo_config["url"],
-            replicaSet=mgo_config["rs_name"],
-            readPreference=mgo_config["read_preference"],
-        )
+        mgo_config = self.configs["mongo"]
+        if mgo_config.get("rs"):
+            self.mgo = MongoClient(
+                mgo_config["rs"]["url"],
+                replicaSet=mgo_config["rs"]["name"],
+                readPreference=mgo_config["rs"]["read_preference"],
+            )
+        elif mgo_config.get("single"):
+            self.mgo = MongoClient(
+                mgo_config["single"]["url"],
+            )
+        else:
+            raise Exception("No mongo config")
+        
         self.col = self.mgo[mgo_config["db"]][mgo_config["collection"]]
 
     def _load_conf(self):
@@ -62,7 +67,7 @@ class FangCrawler:
             return [], e            
             
         nodes_tr = html.xpath("//table[@class='olt']/tr")[2:]
-        logging.info("{0} items in url '{1}'".format(len(nodes_tr), url))
+        log_main.info("{0} items in url '{1}'".format(len(nodes_tr), url))
 
         data = []
         for node_tr in nodes_tr:
@@ -87,7 +92,7 @@ class FangCrawler:
                 "url_owner": url_owner,
                 "time_update": int(time.time()*1000), # ms
             }
-            logging.info("{0}: {1}, {2}".format(id_fang, title, time_last_reponse))
+            log_main.info("{0}: {1}, {2}".format(id_fang, title, time_last_reponse))
                         
             data.append(item)
 
@@ -101,21 +106,24 @@ class FangCrawler:
                 data,
                 upsert=True,
             )
-            logging.info("Upsert data {0}".format(_id))
+            log_main.info("Upsert data {0}".format(_id))
 
-    def run(self, pages=25):
-        for start_num in range(0, pages+1, 25):
-            logging.info("Start page: {0}".format(start_num))
+    def run(self):
+        pages = self.configs["max_pages"]
+        
+        for page_num in range(0, pages):
+            start_num = 0 if page_num == 0 else page_num * 25
+            log_main.info("Page number: {0}".format(page_num))
             
             url = "{0}{1}".format(self.URL_TPL, start_num)
             data, err = self._crawl(url)
             if err is not None:
-                logging.warn("Failed to craw '{0}': {1}".format(url, err))
+                log_main.warn("Failed to craw '{0}': {1}".format(url, err))
                 continue
 
             info, err = self._parse(url, data)
             if err is not None:
-                logging.error("Failed to parse {0}: {1}".format(url, err))
+                log_main.error("Failed to parse {0}: {1}".format(url, err))
                 continue
                 
             self._store(info)
@@ -125,4 +133,4 @@ class FangCrawler:
 
 if __name__ == "__main__":
     crawler = FangCrawler()
-    crawler.run(100)
+    crawler.run()
