@@ -51,8 +51,10 @@ class FangCrawler:
         
         try:
             res = requests.get(url, headers=self.headers, timeout=self.configs["timeout"]["crawl"])
-
-            data, err = res.text, None
+            if res.status_code != 200:
+                data, err = "", Exception("Unexpected http status code: {0}".format(res.status_code))
+            else:
+                data, err = res.text.strip(), None
         except Exception as e:
             data, err = "", e
 
